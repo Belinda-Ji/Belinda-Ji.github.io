@@ -1,0 +1,772 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="机器学习,推荐算法,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="以前看batch normalization，虽然看了很多遍也都只知道batch normalization是怎么操作的，至于为什么要这么操作，总是似懂非懂。今天又重看了几篇博客文章，突然顿悟了，不得不再次感慨，温故而知新，古人诚不我欺也。 首先了解一个概念，internal covariate shift，简单翻译下就是内部协变量偏移。 什么叫covariate shift呢？官方定义是源空间和">
+<meta name="keywords" content="机器学习,推荐算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Batch Normalization">
+<meta property="og:url" content="http://yoursite.com/post/BatchNorm.html">
+<meta property="og:site_name" content="秘密花园">
+<meta property="og:description" content="以前看batch normalization，虽然看了很多遍也都只知道batch normalization是怎么操作的，至于为什么要这么操作，总是似懂非懂。今天又重看了几篇博客文章，突然顿悟了，不得不再次感慨，温故而知新，古人诚不我欺也。 首先了解一个概念，internal covariate shift，简单翻译下就是内部协变量偏移。 什么叫covariate shift呢？官方定义是源空间和">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-05-09T09:11:32.218Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Batch Normalization">
+<meta name="twitter:description" content="以前看batch normalization，虽然看了很多遍也都只知道batch normalization是怎么操作的，至于为什么要这么操作，总是似懂非懂。今天又重看了几篇博客文章，突然顿悟了，不得不再次感慨，温故而知新，古人诚不我欺也。 首先了解一个概念，internal covariate shift，简单翻译下就是内部协变量偏移。 什么叫covariate shift呢？官方定义是源空间和">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/post/BatchNorm.html">
+
+
+
+
+
+  <title> Batch Normalization | 秘密花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秘密花园</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">永远自由自我  永远高唱我歌</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/post/BatchNorm.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="瓶子">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秘密花园">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Batch Normalization
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-05-09T15:40:02+08:00">
+                2021-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法基础/" itemprop="url" rel="index">
+                    <span itemprop="name">算法基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>以前看batch normalization，虽然看了很多遍也都只知道batch normalization是怎么操作的，至于为什么要这么操作，总是似懂非懂。今天又重看了几篇博客文章，突然顿悟了，不得不再次感慨，温故而知新，古人诚不我欺也。</p>
+<p>首先了解一个概念，internal covariate shift，简单翻译下就是内部协变量偏移。</p>
+<p>什么叫covariate shift呢？官方定义是源空间和目标空间的条件概率是一致的，但是边缘概率不同。</p>
+<p>上公式：<br>$$<br>p_s(y|X=x)=p_t(y|X=x)<br>$$</p>
+<p>$$<br>p_s(X)!=p_t(X)<br>$$</p>
+<p>第一个公式代表条件概率相同，第二个公式代表边缘概率不同。</p>
+<p>一看公式就头疼星人，还是喜欢以举🌰的方式来理解公式。</p>
+<p>举个🌰：</p>
+<p>假设源空间问题是一二线城市的用户年龄段(x)和是否爱逛b站(y)的关系，目标空间问题是全国范围内用户年龄段(x)和是否爱逛b站的关系，条件概率相同说的是一二线城市和全国范围对于同一个年龄段来说爱逛b站的比例是一样的，一二线城市的年轻人有70%爱逛b站，中年人有40%爱逛b站，全国范围内的年轻人也是70%爱逛b站，中年人里40%爱逛b站。但是边缘概率不同指的是，一二线城市的年轻人和中年人的分布和全国范围内不同，因为年轻人更倾向去一二线城市当打工人，所以一二线城市显然年轻人的比例更高一些。</p>
+<p>迁移到神经网络的问题里面，就是说神经网络每一层的输入数据经过了层内的操作之后，输出数据的分布变了，但是由于每个x对应的label的分布没变，比如输入层x=x1的时候label的正负比例是10:1，到了输出层x=x1的时候正负比例仍然是10:1（<strong>写到这里有点困惑，这个应该也是变化了？输出层的x1对应的已经不是输入层的x1了吧。。。</strong>也就是条件概率并没有改变。</p>
+<p>既然知道神经网络里面有covariate shift，那它有什么影响呢？</p>
+<p>首先，每一层的参数更新就会导致上一层的输入数据分布发生变化，而且随着网络层数增加，数据分布变化会越来越大，那么上层网络在学习参数的时候就要不断去调整适应数据分布的变化。</p>
+<p>其次，由于每一层在连接层后会接一个激活函数，如果输入数据分布变化使它落在了激活函数的饱和区（梯度为0），就会导致学习过早停止，参数难以更新。</p>
+<p>总之，covariate shift会使得神经网络的学习变得很困难。</p>
+<p>那怎么解决这个问题呢？既然数据分布变化了，那就想办法把它拉回来，所以就有了batch normalization的出现。</p>
+<p>batch normalization的基本操作是先做一层归一化，然后再通过两个参数进行平移伸缩变换。</p>
+<p>归一化很好理解，减去均值除以方差，就是把数据分布变换成均值为0方差为1的标准分布上了。但是为什么又要做一次平移和伸缩变换呢？</p>
+<p>之前一直不理解这个操作的必要性是什么，现在终于明白了，因为如果所有的数据都是拉到均值为0方差为1的分布上，就会将每一层的输入都限制在0附近的范围上，每经过一层，模型一通操作猛如虎，好不容易学习了一些信息，又给拉到0附近了，真真学了个寂寞，这样其实损失了很多信息。还有很重要的一点，如果bn之后的数据都落在0附近，那么输入到激活函数中很可能会落在线性区（比如sigmoid函数在0附近的梯度就是接近线性的）从而导致失去了非线性表达能力。所以引入平移和伸缩变换，其实是让每一层的输入确定在一个一致的分布里面，又不会失去非线性表达能力。而且这个平移和伸缩的参数都是通过模型学习出来的。</p>
+<p>还有最后一个问题是，为什么可以对原始数据进行随意地缩放和拉伸呢？</p>
+<p>这就回到了我们上面说的covariate shift的定义了，由于covaritate shift之后的数据条件概率不变但边缘概率改变了，我们做一系列的拉伸和缩放实际上是想控制边缘概率在一定的范围之内，而之所以可以做这些拉伸和缩放操作，是因为即使做了这些之后也不影响y的条件概率，也就是不会影响输入数据和模型label的关系。这样就可以既能让模型学习得更好，也不会影响对模型目标的学习结果啦。</p>
+<p>参考：</p>
+<ol>
+<li><p><a href="https://zhuanlan.zhihu.com/p/33173246" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/33173246</a></p>
+</li>
+<li><p><a href="https://blog.csdn.net/xiaoleiniu1314/article/details/88917272" target="_blank" rel="noopener">https://blog.csdn.net/xiaoleiniu1314/article/details/88917272</a></p>
+</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/机器学习/" rel="tag"># 机器学习</a>
+          
+            <a href="/tags/推荐算法/" rel="tag"># 推荐算法</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/生命中不可承受之重.html" rel="next" title="生命中不可承受之重">
+                <i class="fa fa-chevron-left"></i> 生命中不可承受之重
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/LeetCodeNotes.html" rel="prev" title="LeetCode刷题笔记">
+                LeetCode刷题笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="瓶子">
+          <p class="site-author-name" itemprop="name">瓶子</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Belinda-Ji" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+	
+
+
+	<div id="music163player">
+	     <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="220" height="32" src="//music.163.com/outchain/player?type=2&id=420401255&auto=0&height=32">
+	     </iframe>
+        </div>
+	
+	
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  路途中遇到的闪闪发光的人，都如星辰般照亮我的前路。
+<!-- <span class="author" itemprop="copyrightHolder">瓶子</span>
+-->
+</div>
+
+
+<!-- <div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+-->
+
+<!-- <div class="theme-info">
+  主题 -
+  take a try
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+-->
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

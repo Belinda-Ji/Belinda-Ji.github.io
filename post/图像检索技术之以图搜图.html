@@ -1,0 +1,821 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="计算机视觉,图像检索,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="前不久公司举办一年一度的hackathon大赛，虽然我是临时被参赛的一员，虽然结果发生了些令人不太愉快的事情，但是努力奋战的那几天还是带来了不少收获的，四个CV领域的纯小白，在几天之内速成图像检索算法的应用，还速成了一个“我很丑但我很有用”的前端页面，满满的成就感。想着不记下来的话，可能没多久就忘了，所以在此记录一下自己负责的这部分内容，可能深度不够，但是从结果来说还是真真切切地解决了业务方的需求">
+<meta name="keywords" content="计算机视觉,图像检索">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图像检索技术之以图搜图">
+<meta property="og:url" content="http://yoursite.com/post/图像检索技术之以图搜图.html">
+<meta property="og:site_name" content="秘密花园">
+<meta property="og:description" content="前不久公司举办一年一度的hackathon大赛，虽然我是临时被参赛的一员，虽然结果发生了些令人不太愉快的事情，但是努力奋战的那几天还是带来了不少收获的，四个CV领域的纯小白，在几天之内速成图像检索算法的应用，还速成了一个“我很丑但我很有用”的前端页面，满满的成就感。想着不记下来的话，可能没多久就忘了，所以在此记录一下自己负责的这部分内容，可能深度不够，但是从结果来说还是真真切切地解决了业务方的需求">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/post/conv.jpg">
+<meta property="og:image" content="http://yoursite.com/post/cnn.jpg">
+<meta property="og:image" content="http://yoursite.com/post/depthwiseconv.jpg">
+<meta property="og:image" content="http://yoursite.com/post/mobilenet.jpg">
+<meta property="og:updated_time" content="2019-11-21T14:51:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图像检索技术之以图搜图">
+<meta name="twitter:description" content="前不久公司举办一年一度的hackathon大赛，虽然我是临时被参赛的一员，虽然结果发生了些令人不太愉快的事情，但是努力奋战的那几天还是带来了不少收获的，四个CV领域的纯小白，在几天之内速成图像检索算法的应用，还速成了一个“我很丑但我很有用”的前端页面，满满的成就感。想着不记下来的话，可能没多久就忘了，所以在此记录一下自己负责的这部分内容，可能深度不够，但是从结果来说还是真真切切地解决了业务方的需求">
+<meta name="twitter:image" content="http://yoursite.com/post/conv.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/post/图像检索技术之以图搜图.html">
+
+
+
+
+
+  <title> 图像检索技术之以图搜图 | 秘密花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秘密花园</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">永远自由自我  永远高唱我歌</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/post/图像检索技术之以图搜图.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="瓶子">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秘密花园">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                图像检索技术之以图搜图
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-13T21:09:40+08:00">
+                2019-11-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法应用/" itemprop="url" rel="index">
+                    <span itemprop="name">算法应用</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前不久公司举办一年一度的hackathon大赛，虽然我是临时被参赛的一员，虽然结果发生了些令人不太愉快的事情，但是努力奋战的那几天还是带来了不少收获的，四个CV领域的纯小白，在几天之内速成图像检索算法的应用，还速成了一个“我很丑但我很有用”的前端页面，满满的成就感。想着不记下来的话，可能没多久就忘了，所以在此记录一下自己负责的这部分内容，可能深度不够，但是从结果来说还是真真切切地解决了业务方的需求的，所以也算是很有意义的一次尝试。 </p>
+<p>我们面对的业务场景是，市场在进行广告投放之前需要制作广告创意，而广告创意一般由模板、文案、图片、视频等构成，业务人员在投放广告的过程中也许会面临查找和替换素材的需求，比如某个广告创意中的图片有缺损，或是想通过拼图类的图片找到原始素材等等。这时候就需要用到图像检索技术，根据已有的一张图片去图库中找到与其相似的图片。针对这个需求我们提出了一套解决方案，融合了传统算法和深度学习算法，各种算法发挥各自的优势，相互补充。</p>
+<p>我们主要用到的技术有：</p>
+<ul>
+<li>传统的VLAD算法</li>
+<li>神经网络模型MobileNet</li>
+<li>Faster-RCNN</li>
+<li>百度OCR技术</li>
+</ul>
+<p>实际应用时我们结合了VLAD和MobileNet两种模型得到的特征向量，将其combine之后再计算相似距离，但由于时间关系我们没有做过多的调参实验，比如两者的结合权重如何设定，因此最终的效果并没有优于单独的MobileNet。而Faster-RCNN模型主要用来提取图像的局部显著特征，它对于大图中包含小图的case往往有更好的效果。最后，百度OCR技术是为了识别图像中的文字内容，这对于模板类的广告创意图片的检索很重要，因为广告创意通常共享相同的模板，只是更改了其中的文案素材，而在投放时这些文案素材才是重点关注的对象。</p>
+<p>由于我只负责了VLAD和MobileNet这两种算法，因此本文主要介绍这两种算法的原理及实现。</p>
+<h3 id="VLAD"><a href="#VLAD" class="headerlink" title="VLAD"></a>VLAD</h3><p>VLAD的全称是局部聚合向量（Vector of Locally Aggregated Descriptors)，其实它只是一种编码方法，在编码之前，还要往前追溯到它的上一步操作，即特征提取技术。</p>
+<p>常用的图像局部特征提取技术有SIFT,SURF,ORB三种。</p>
+<p>SIFT的全称是尺度不变特征变换（Scale Invariant Feature Transform），所谓尺度不变，是指这些特征在不同的尺度空间保持不变性，通俗地说就是对图像进行旋转、缩放、亮度变化等操作，SIFT特征都是不变的。</p>
+<p>SIFT算法的本质是在不同的尺度空间上查找关键点，而尺度空间需要通过高斯模糊算法来获取。我们在此不对高斯模糊算法作详细描述，简单来说，其原理就是对图像进行一层滤波变换，而滤波层的权重是通过高斯函数（即正态分布函数）来生成的。由于正态分布的特点是中间高两头低，因此高斯模糊的特点是越靠近中心点的地方权重越大，越远离的地方权重越小，这样可以使得模糊更平滑，保留了边缘效果。而不同的尺度空间，就是通过设置不同的高斯函数的标准差σ实现的，σ也被称为尺度空间因子，值越小即尺度越小的空间对应图像的细节特征，大尺度对应图像的概貌特征。</p>
+<p>有了尺度空间后，就要从尺度空间中识别出对于尺度、旋转不变的兴趣点，这一步是通过高斯差分函数（DOG）寻找极值点实现的，我们依然不去深究其复杂的数学推导，用通俗的语言解释，就是先对原始图像进行一系列尺度不同的高斯模糊，然后比较模糊后的图像的差别，差别大的位置就是特征明显的点，反之就是特征不明显的点，这些特征明显的点也就是找到的极值点。但这些极值点只是作为关键点的候选，还不能满足关键点的特点。然后，对于这些候选位置，通过拟合一个精细的模型来确定位置和尺度，即关键点的位置，并基于图像局部的梯度方向给关键点分配方向，最后，针对每个关键点的位置、尺度和方向，用一个特征向量来描述，这个特征向量应该满足对于位置、尺度、方向的变换具有不变性。这个特征向量就是从图像中提取到的SIFT特征。从SIFT算法的原理来看，SIFT特征很容易提取到图像中的角点、边缘点、暗区的亮点或者亮区的暗点。</p>
+<p>SURF（Speeded Up Robust Features）算法的原理和SIFT大体类似，不过，SURF不是利用DOG而是利用Hessian矩阵来检测特征点，且在细节处理上更简化，使得算法更加高效，属于SIFT的高效变种算法。</p>
+<p>然而，尽管SURF相对于SIFT提高了运算效率，但在实践工程应用中，特征点的提取往往只是其中的一个环节，因此对性能有更高的要求。而ORB（Oriented FAST and Rotated BRIEF)算法不仅具有良好的尺度和旋转不变性，在运行效率上也远远优于上述两种算法，因此其应用场景十分广泛。ORB的特征检测原理用简单的话概括就是，如果某像素点与其周围一定范围内的像素点差别很大，则它很有可能是一个角点。具体的原理在此也不作展开了。</p>
+<p>至此，我们提取到了一个图像上的多个特征点，但是，要将这多个特征点全部用来表征这张图像，一方面需要较大的存储空间，另一方面在大规模图像检索中，高维的特征向量运算会有严重的性能问题。而VLAD算法就是通过某种编码方法，将一张图像上的局部特征描述子编码成一个定长的维数较低的VLAD向量，从而更方便地进行图像存储和检索。</p>
+<p>VLAD的思想是，首先，在一个很大的图像局部特征数据集上训练一个聚类模型，得到k个聚类中心点{c_i,i=1,2,……,k}的向量表示，称为码书（codebook）。对于一幅图像上的每个局部特征描述子x，都能找到与其距离最近的聚类中心点c_i，这样，对于每个c_i都有一个描述子集合{x_i,i=1,2,……,m}，且c_i和x_i都是d维向量，然后，计算c_i的每一维和x_i的对应维上的值的差，再将属于c_i的每个描述子的该差值求和，即得到VLAD向量的第i*j维的取值。计算公式如下：</p>
+<p>v_(i,j)=∑_(x such that NN(x)=c_i)(x_j-c_(i,j))</p>
+<p>其中x指该幅图像的特征点，c_i是距离x最近的聚类中心，NN(x)是距离x最近的聚类中心。最终VLAD向量的维度是k*d维,再通过PCA的方法对其进行降维并进行归一化，就可以作为图像的VLAD特征使用了。</p>
+<h3 id="MobileNet"><a href="#MobileNet" class="headerlink" title="MobileNet"></a>MobileNet</h3><p>随着深度学习技术的兴起，计算机视觉领域的神经网络模型也层出不穷。CV领域的神经网络结构一般是卷积神经网络CNN，通过对图像的每个像素点进行卷积操作，达到对全局编码的目的。不同于上文提到的传统特征提取算法主要提取图像的局部特征，神经网络算法则是利用了图像的全局特征，蕴含的信息更丰富，而且可以通过引入更多的隐藏层，设计更复杂的网络结构，达到更精细的图像表征。业界比较有名的神经网络有LeNet,AlexNet,VGG,ResNet等，然而，由于这些神经网络模型的结构比较复杂，需要的训练数据量庞大，往往只能在高算力的服务器中运行，而移动设备由于硬件资源的限制，很难运行复杂模型。基于此，体积更小、速度更快的轻量级神经网络模型相继被提出，其中具有代表性的模型就是MobileNet模型。</p>
+<p>MobileNet模型不但有更小的体积和更快的速度，而且被证明了在ImageNet上相对于大型神经网络模型有更高的准确率。因此我们选择了该模型进行实践。</p>
+<p>那么MobileNet是如何实现更小的体积和更快的计算的呢？这里我们将详细介绍MobileNet的基本组件——深度可分离卷积（depthwise separable convolution），正是这种结构极大地减少了模型的参数个数和计算量。</p>
+<p>深度可分离卷积其实可以分解成两个操作，分别是深度卷积（depthwise convolution）和逐点卷积(pointwise convolution)，下面我们来看看深度可分离卷积和标准卷积（standard convolution）之间的差异：</p>
+<p>在介绍这两种卷积之前我们先通过一张图简单地介绍一下卷积的详细过程，以帮助没有接触过CV领域的同学更好地理解。</p>
+<p>下图是一个5<em>5像素的原始输入通过一个3</em>3卷积核的过程，原始输入左上角的3<em>3矩阵（黄色框线内部）与卷积核的3</em>3矩阵的对应位置相乘再求和，就得到输出矩阵的左上角的元素值（黄色框线内部），然后分别向右和向下平移原始输入的3<em>3的矩阵，就可以填满整个输出矩阵的九个格子。但是这样会导致原始输入的边缘位置的元素无法得到卷积，因此一个5</em>5的输入只能得到3<em>3的输出（即no padding的结果）。但是，如果我们对边缘位置的元素假想出一个以它为中心的3</em>3的矩阵，对于假想出来的部分都填充为0，就可以得到一个和原始输入矩阵大小一样的输出矩阵了（即padding的结果）。</p>
+<p><img src="./conv.jpg" alt="fig1"></p>
+<p>现在我们来看看标准卷积和深度可分离卷积有什么不同。</p>
+<p>假设原始输入是一个三通道（RGB）的5*5像素的彩色图片。</p>
+<ul>
+<li><p>标准卷积<br>假设用一个3<em>3的卷积核，输出通道数为4，那么卷积核的大小为3</em>3<em>3</em>4，卷积过程如下：<br><img src="./cnn.jpg" alt="fig2"><br>也就是说，每个输入通道分别经过对应的3<em>3的卷积核，得到的每个通道对应位置的值进行叠加，就可以得到一个新的通道，由于输出通道是4，那么需要4组这样的卷积核，总参数个数为3</em>3<em>3</em>4=108。</p>
+</li>
+<li><p>深度卷积+逐点卷积<br>同样假设输出通道是4，深度可分离卷积用两个步骤来完成。首先，每个输入通道单独与一个3<em>3的卷积核进行卷积，分别得到一个新的feature map，这一步是深度卷积，输出的feature map个数与输入通道数相等，然后将这一层的每个feature map分别经过4个1</em>1的标准卷积，得到最终的4个输出通道。注意pointwise其实就是卷积核为1<em>1情况下的标准卷积。于是，最终需要的总参数的个数为3</em>3<em>3+1</em>1<em>3</em>4=39。<br><img src="./depthwiseconv.jpg" alt="fig3"><br>从上面的例子我们可以看到，深度可分离卷积的参数量的确比标准卷积小得多，考虑更一般的情况，假设卷积核的大小是M<em>M，那么深度可分离卷积的参数个数为M</em>M<em>I+1</em>1<em>I</em>O=I<em>(M^2+O)，而标准卷积的参数个数为M</em>M<em>I</em>O，当O很大时两者之间的差异会非常可观。</p>
+</li>
+</ul>
+<p>从经济含义上，深度可分离卷积相当于将通道和空间区域分开来考虑，将标准卷积中不同通道在同一空间位置上的特征提取过程放到了第二步，也就是先对单通道进行深层次的特征提取，再横向融合多通道的特征，这种巧妙的设计使得在保证效果的前提下计算量大幅降低。</p>
+<p>当然，实际操作时，深度卷积层得到的feature map会先经过batch normalization和Relu，再输入到逐点卷积层，逐点卷积层也会经过batch normalization和Relu再输入到下一个深度卷积层。由于每个深度卷积加逐点卷积单元的参数量都很小，因此在神经网络中可以叠加多个这样的单元，最后再接一个全连接层就可以了。MobileNet中的深度可分离卷积结构示意图如下：<br><img src="./mobilenet.jpg" alt="fig4"><br>到这里我们已经基本介绍完了MobileNet的基本网络结构，至于算法实现上的细节我们不再做过多介绍，是骡子是马总要先牵出来溜溜，下面我们就真正进入应用环节了。</p>
+<h3 id="VLAD与MobileNet的融合"><a href="#VLAD与MobileNet的融合" class="headerlink" title="VLAD与MobileNet的融合"></a>VLAD与MobileNet的融合</h3><p>回到我们的应用场景，图像检索的一般做法是先通过模型得到每幅图像的特征的embedding表示，再将待检索图像的embedding与图像库中的每个图像的embedding计算相似距离，最后按照距离从小到大的顺序召回最相似的N张图片。现在我们有了模型，只要将待检索的图像输入到模型中，就能得到最后的embedding表示向量。</p>
+<p>前文中我们分别介绍了传统的局部特征提取算法和基于神经网络的全局特征提取算法，局部特征得到的图像信息更少，但是它对图像的缩放、旋转、平移等几何变换具有不变性，而神经网络得到的图像信息多，但缺乏尺度不变性，那么我们何不考虑对两种模型得到的特征进行融合，优势互补呢？</p>
+<p>当然，融合的方式可以有多种，我们实践了比较简单的融合方式，先将两个模型得到的embedding进行归一化，这一步是为了保证融合向量的scale保持一致，然后以一定的权重将两者concat起来，作为这张图像最终的embedding表示。权重值设置为超参数，在大数据集上进行调优。</p>
+<h3 id="大规模检索技术Ball-tree-Indexer"><a href="#大规模检索技术Ball-tree-Indexer" class="headerlink" title="大规模检索技术Ball-tree Indexer"></a>大规模检索技术Ball-tree Indexer</h3><p>如果检索的图像库规模很大，要计算待检索图像的embedding和图像库中每张图像的embedding之间的距离显然是一件非常耗时耗资源的工作，因此我们用到了一项高效的近邻搜索技术——ball-tree indexer。</p>
+<blockquote>
+<p>写不动了，下次再更。。。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/计算机视觉/" rel="tag"># 计算机视觉</a>
+          
+            <a href="/tags/图像检索/" rel="tag"># 图像检索</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/hexo-guides.html" rel="next" title="hexo guides">
+                <i class="fa fa-chevron-left"></i> hexo guides
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/生命中不可承受之重.html" rel="prev" title="生命中不可承受之重">
+                生命中不可承受之重 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="瓶子">
+          <p class="site-author-name" itemprop="name">瓶子</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Belinda-Ji" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+	
+
+
+	<div id="music163player">
+	     <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="220" height="32" src="//music.163.com/outchain/player?type=2&id=420401255&auto=0&height=32">
+	     </iframe>
+        </div>
+	
+	
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#VLAD"><span class="nav-number">1.</span> <span class="nav-text">VLAD</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MobileNet"><span class="nav-number">2.</span> <span class="nav-text">MobileNet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VLAD与MobileNet的融合"><span class="nav-number">3.</span> <span class="nav-text">VLAD与MobileNet的融合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#大规模检索技术Ball-tree-Indexer"><span class="nav-number">4.</span> <span class="nav-text">大规模检索技术Ball-tree Indexer</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  路途中遇到的闪闪发光的人，都如星辰般照亮我的前路。
+<!-- <span class="author" itemprop="copyrightHolder">瓶子</span>
+-->
+</div>
+
+
+<!-- <div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+-->
+
+<!-- <div class="theme-info">
+  主题 -
+  take a try
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+-->
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>

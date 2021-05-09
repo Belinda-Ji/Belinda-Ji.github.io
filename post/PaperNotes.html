@@ -1,0 +1,800 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="机器学习,推荐算法,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0">
+
+
+
+
+
+
+<meta name="description" content="做算法这一行，免不了要持续跟进前沿的理论研究，但是断断续续地看完不写总结，也不过是走马观花不求甚解，所以在这里记录下来，一则能帮自己理清思路，二则过后想起来能很快重拾重要思想。 Deep Neural Networks for YouTube RecommendationsYouTube在2016年提出的DNN模型，召回模型中的经典，其实论文不仅提出了召回模型，排序模型也很值得借鉴。 Deep I">
+<meta name="keywords" content="机器学习,推荐算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PaperNotes">
+<meta property="og:url" content="http://yoursite.com/post/PaperNotes.html">
+<meta property="og:site_name" content="秘密花园">
+<meta property="og:description" content="做算法这一行，免不了要持续跟进前沿的理论研究，但是断断续续地看完不写总结，也不过是走马观花不求甚解，所以在这里记录下来，一则能帮自己理清思路，二则过后想起来能很快重拾重要思想。 Deep Neural Networks for YouTube RecommendationsYouTube在2016年提出的DNN模型，召回模型中的经典，其实论文不仅提出了召回模型，排序模型也很值得借鉴。 Deep I">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-02T09:25:49.365Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PaperNotes">
+<meta name="twitter:description" content="做算法这一行，免不了要持续跟进前沿的理论研究，但是断断续续地看完不写总结，也不过是走马观花不求甚解，所以在这里记录下来，一则能帮自己理清思路，二则过后想起来能很快重拾重要思想。 Deep Neural Networks for YouTube RecommendationsYouTube在2016年提出的DNN模型，召回模型中的经典，其实论文不仅提出了召回模型，排序模型也很值得借鉴。 Deep I">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/post/PaperNotes.html">
+
+
+
+
+
+  <title> PaperNotes | 秘密花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秘密花园</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">永远自由自我  永远高唱我歌</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/post/PaperNotes.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="瓶子">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秘密花园">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                PaperNotes
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-24T11:19:08+08:00">
+                2019-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/论文集锦/" itemprop="url" rel="index">
+                    <span itemprop="name">论文集锦</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>做算法这一行，免不了要持续跟进前沿的理论研究，但是断断续续地看完不写总结，也不过是走马观花不求甚解，所以在这里记录下来，一则能帮自己理清思路，二则过后想起来能很快重拾重要思想。</p>
+<h3 id="Deep-Neural-Networks-for-YouTube-Recommendations"><a href="#Deep-Neural-Networks-for-YouTube-Recommendations" class="headerlink" title="Deep Neural Networks for YouTube Recommendations"></a>Deep Neural Networks for YouTube Recommendations</h3><p>YouTube在2016年提出的DNN模型，召回模型中的经典，其实论文不仅提出了召回模型，排序模型也很值得借鉴。</p>
+<h3 id="Deep-Interest-Network-for-Click-Through-Rate-Prediction-2018"><a href="#Deep-Interest-Network-for-Click-Through-Rate-Prediction-2018" class="headerlink" title="Deep Interest Network for Click-Through Rate Prediction(2018)"></a>Deep Interest Network for Click-Through Rate Prediction(2018)</h3><p>阿里妈妈广告算法团队针对广告推荐提出的DIN模型，核心思想是挖掘用户行为中对当前点击起到预测作用的那部分兴趣，比如一个用户在点击一个羽绒服广告之前，曾有过衣服相关的交互行为和电子产品相关的交互行为，如果以历史行为表达用户兴趣，这个兴趣向量中既包含衣服相关也包含电子产品的信息，但对于用户此次点击羽绒服广告的样本来说，只有与衣服相关的那部分信息是有用的。DIN所做的事情就是将这部分信息抽取出来。</p>
+<p>模型结构是在传统的MLP结构上做的改进。</p>
+<p>回顾一下MLP模型的结构，首先，将每个特征组做one-hot encoder得到的高维稀疏二值向量转换成D维的embedding向量，如果是multi-hot encoder，对每一个非零的位置都有一个D维的embedding vector，但由于每个样本非零的个数不一定相等，所以要用一个pooling层转换得到一个定长的vector（D维），这样才能输入到全连接层中。最后将每一大类特征的embedding vector连起来，输入到全连接层。</p>
+<p>而DIN与MLP的不同之处在于，它不是将用户行为的embedding vector简单地相连，而是引入了一个激活单元来得到它们与目标广告的激活权重，再对用户行为的embedding vector计算加权和。</p>
+<p>这个激活单元有点类似attention的思想，也就是说用户的这次点击来源于他对某些特定历史行为更多的关注。权重高的历史行为表达了用户这次的兴趣，而权重低的历史行为则是“兴趣噪声”。如此一来，对于不同的目标广告，用户兴趣的embedding表达也是不一样的，这也区别于传统的以一个固定的embedding vector来表达用户兴趣的做法，表达出了用户兴趣的多样性和动态性。</p>
+<p>此外，DIN还尝试了用另一种激活函数Dice来代替PRelu，Dice与PRelu的区别在于，PRelu的变化点始终在0处，控制函数p(s)在s大于0时等于1，在s小于等于0时等于0。而实际上神经元的数据分布是不同的，因此Dice引入了均值和方差来描述数据的分布，控制函数p(s)在s等于均值时等于0.5，在s大于均值时处在0.5和1之间，在s小于均值时在0到0.5之间。这样使得激活函数能根据数据的分布来调整激活值。</p>
+<p>参考：<a href="https://github.com/alibaba/x-deeplearning/wiki/%E6%B7%B1%E5%BA%A6%E5%85%B4%E8%B6%A3%E7%BD%91%E7%BB%9C(DIN)" target="_blank" rel="noopener">https://github.com/alibaba/x-deeplearning/wiki/%E6%B7%B1%E5%BA%A6%E5%85%B4%E8%B6%A3%E7%BD%91%E7%BB%9C(DIN)</a></p>
+<p>代码地址：<a href="https://github.com/alibaba/x-deeplearning/tree/master/xdl-algorithm-solution/DIN/" target="_blank" rel="noopener">https://github.com/alibaba/x-deeplearning/tree/master/xdl-algorithm-solution/DIN/</a></p>
+<h3 id="Deep-Interest-Evolution-Network-for-Click-Through-Rate-Prediction"><a href="#Deep-Interest-Evolution-Network-for-Click-Through-Rate-Prediction" class="headerlink" title="Deep Interest Evolution Network for Click-Through Rate Prediction"></a>Deep Interest Evolution Network for Click-Through Rate Prediction</h3><p>DIN模型是将用户行为作为用户兴趣的表达，并且表达了用户兴趣的多样性，但实际上，用户行为并不能完全反映出用户兴趣，还有一部分兴趣可能隐藏在用户行为的背后，而且，用户兴趣通常是会不断演化的，如果能通过用户行为推断出演化轨迹，就能更好地预测出用户多样性的行为。DIEN分别提出了用一个兴趣抽取层来抽取用户当时的兴趣，并用一个兴趣演化层来表达用户的演化轨迹。</p>
+<p>兴趣抽取层模块：<br>作者选择用GRU模型来表达行为之间的依赖关系，在用户i的点击行为序列中，以t-1时刻的隐藏状态h_t-1和t时刻的点击item的embedding vector来更新t时刻的隐藏状态h_t，其中更新门限为u_t。<br>由于最终进行ctr预测的时候，损失函数只包含了序列最后一次行为的label，也就是说，模型只监督了最后一次点击时的用户兴趣，而在T时刻之前的隐藏状态都没有label来监督，因此h_t并不能很好地表达用户兴趣，所以作者在损失函数里面增加了一个辅助loss。这个辅助loss的主要思想是，以t+1时刻的点击行为作为t时刻的隐藏状态的监督，而t+1时刻的负样本是从总的item集合中剔除t+1时刻的正样本之后抽样得到的，辅助loss的形式是一个交叉熵损失函数。辅助loss的引入使得隐藏状态h_t能更好地表达用户兴趣。</p>
+<p>最终全局的loss就等于ctr的loss函数加上辅助loss函数乘以一个α，α是一个超参数。</p>
+<p>兴趣演化层模块：<br>作者引入了attention的思想，通过隐藏状态h_t和目标item的embedding vector计算相似度attention score，且通过一个softmax函数将1到T时刻的所有attention score归一化，使其和为1。这个attention score代表了隐藏状态和目标item的相关性，越相关的attention score越高。作者引入了AUGRU模型，将attention机制和GRU结合起来，首先通过attention score激活更新门限u_t，attention score越高，h_t越接近于h_t，反之，h_t越接近于h_t-1，也就是说t时刻的兴趣权重会被削弱。</p>
+<p>最终的模型结构是将用户的兴趣状态输出与其它大类特征（目标item，context特征，用户画像特征）的embedding vector相连，输入到全连接层（与MLP一样）。</p>
+<h3 id="Next-Item-Recommendation-with-Self-Attention-2018"><a href="#Next-Item-Recommendation-with-Self-Attention-2018" class="headerlink" title="Next Item Recommendation with Self-Attention(2018)"></a>Next Item Recommendation with Self-Attention(2018)</h3><p>主要思想：sequence-aware推荐模型，利用self-attention机制，从用户的历史行为中推断出item与item之间的关系。通过self-attention机制，可以从用户的交互轨迹中估计出每个item的相对权重，从而学习到用户的短期兴趣。</p>
+<p>前人研究：<br>RNN:连续的item之间的交互作用是通过一个循环矩阵来捕捉的，通过周期性的记忆来保存长期依赖性。<br>CNN:通过对输入序列的滑动窗口参数化转换来隐式地捕捉item之间的交互作用<br>上述两种模型的缺点：无法显式地捕捉到用户整个历史行为中item之间的交互作用。</p>
+<p>本文提出了一个新的神经序列推荐系统，不仅考虑连续的item之间的交互作用，而且考虑当前窗口内的所有的用户交互行为。因此，不仅能学习到全局的表达，也能学习到k个连续item之间的短期信息（局部信息）。通过这种学习，可以用最相关的item来构造用户的表达。<br>总的来说，既能学习到用户的长期兴趣，又能学习到用户的短期兴趣。</p>
+<h3 id="Probabilistic-Field-Mapping-for-Product-Search"><a href="#Probabilistic-Field-Mapping-for-Product-Search" class="headerlink" title="Probabilistic Field Mapping for Product Search"></a>Probabilistic Field Mapping for Product Search</h3><p>研究目的：对于用户的一个query，返回与之最相关的产品list。</p>
+<p>对于给定的一个查询query，它和document之间的相关性用它们之间的条件概率来表示，即p(d | q)，这个相关性的大小可以作为排序的依据（即相关性越大的排在越前面）。<br>根据贝叶斯理论，这个条件概率可以转化成给定document的条件下，query出现的概率（从document中重复随机抽样，能组成query的概率），进一步将query划分成一个个单词term，且假定每个词在文中出现的概率相互独立，即问题可以转换成在给定的document中单词term出现的概率。</p>
+<p>用户在检索时是按照某种属性的关键词来检索的，检索内容（query）对应着产品的某种属性，比如品牌、产品分类、产品内容、产品描述等，对于单词term来说，它与属性字段field之间的映射概率指的是对于给定的单词t，它属于某个字段f的概率p(f | t)。同样根据贝叶斯理论，它主要取决于p(t | f) 和p(f)。</p>
+<p>根据CTR和NDCG来评估排序效果，对于不同的产品字段f，它出现的概率等于这个字段上的NDCG占所有字段上NDCG之和的权重。即基于历史训练数据的CTR来估计字段f的概率。传统的做法是假设字段f出现的概率是均匀分布的。</p>
+<p>根据整个集合中单词t在字段f对应的内容中出现的频数，根据极大似然估计方法计算得到在给定f下t出现的概率p(t | f)。</p>
+<p>主要比较了用不同的估计方法，对于搜索排序的效果有什么影响。</p>
+<p><strong>与工作相关的思考</strong></p>
+<p>这篇文章的模型主要基于贝叶斯理论，文章主要研究了两个概率的估计方法，一个是给定产品属性下某个单词出现的概率p(t | f)，一个是某个产品属性出现的概率p(f)。选用不同的方法对搜索排序的结果有什么影响。</p>
+<p>文章有两个贡献点：</p>
+<p>第一，引入了检索单词和产品属性之间的映射概率，以我们的酒店产品举例来说，比如用户输入的检索内容为“上海五星级香格里拉”，其中 “上海”对应的属性为产品一级分类，“五星级”对应的属性为产品二级分类，“香格里拉”对应的属性为品牌，该模型不是简单地计算“上海五星级香格里拉”这个query与我们的产品之间的条件概率，而是考虑各个单词在其对应的产品属性下出现的概率，比如在产品A的品牌这个属性下的文本集合中，“香格里拉”这个词出现的概率是多少。</p>
+<p>第二，对于每一种产品属性，它们出现的概率并不是均匀分布的，而是利用了历史数据的CTR信息，根据NDCG（衡量排序效果的指标）的大小计算出现的概率，比如在历史数据中“品牌”的排序效果最好，那么品牌这个属性出现的概率最大。</p>
+<p>借鉴：在搜索排序问题中考虑更细分的映射概率，比如用query的关键词代替整个query语句，用产品的某个属性下的内容代替产品的所有内容，再进行贝叶斯建模估计query和产品之间的相关性。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/机器学习/" rel="tag"># 机器学习</a>
+          
+            <a href="/tags/推荐算法/" rel="tag"># 推荐算法</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/人间日常.html" rel="next" title="人间日常">
+                <i class="fa fa-chevron-left"></i> 人间日常
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/hexo-guides.html" rel="prev" title="hexo guides">
+                hexo guides <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="瓶子">
+          <p class="site-author-name" itemprop="name">瓶子</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Belinda-Ji" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+	
+
+
+	<div id="music163player">
+	     <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="220" height="32" src="//music.163.com/outchain/player?type=2&id=420401255&auto=0&height=32">
+	     </iframe>
+        </div>
+	
+	
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Neural-Networks-for-YouTube-Recommendations"><span class="nav-number">1.</span> <span class="nav-text">Deep Neural Networks for YouTube Recommendations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Interest-Network-for-Click-Through-Rate-Prediction-2018"><span class="nav-number">2.</span> <span class="nav-text">Deep Interest Network for Click-Through Rate Prediction(2018)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Interest-Evolution-Network-for-Click-Through-Rate-Prediction"><span class="nav-number">3.</span> <span class="nav-text">Deep Interest Evolution Network for Click-Through Rate Prediction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Next-Item-Recommendation-with-Self-Attention-2018"><span class="nav-number">4.</span> <span class="nav-text">Next Item Recommendation with Self-Attention(2018)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Probabilistic-Field-Mapping-for-Product-Search"><span class="nav-number">5.</span> <span class="nav-text">Probabilistic Field Mapping for Product Search</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  路途中遇到的闪闪发光的人，都如星辰般照亮我的前路。
+<!-- <span class="author" itemprop="copyrightHolder">瓶子</span>
+-->
+</div>
+
+
+<!-- <div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+-->
+
+<!-- <div class="theme-info">
+  主题 -
+  take a try
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+-->
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+</body>
+</html>
